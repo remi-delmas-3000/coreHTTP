@@ -21,12 +21,14 @@
  */
 
 /**
- * @file strncpy.c
+ * @file strncpy_contract.h
  * @brief Creates a stub for strncpy so that the proofs for HTTPClient_AddHeader,
  * HTTPClient_AddRangeHeader, and HTTPClient_InitializeRequestHeaders, run much
  * faster. This stub checks if, for the input copy length, the destination and
  * source are valid accessible memory.
  */
+#ifndef STRNCPY_CONTRACTS_H_
+#define STRNCPY_CONTRACTS_H_
 
 #include <string.h>
 
@@ -40,18 +42,21 @@
                                     const char * src,
                                     size_t n,
                                     size_t os )
-    {
-        __CPROVER_assert( __CPROVER_w_ok( dest, n ), "write" );
-        __CPROVER_assert( __CPROVER_r_ok( src, n ), "read" );
-        return dest;
-    }
-#else
+/* *INDENT-OFF* */
+__CPROVER_requires( __CPROVER_is_fresh( dest, n ))
+__CPROVER_requires( __CPROVER_is_fresh( src, n ))
+/* *INDENT-ON* */
+    ;
+
+#else /* if __has_builtin( __builtin___strncpy_chk ) */
     char * strncpy( char * dest,
                     const char * src,
                     size_t n )
-    {
-        __CPROVER_assert( __CPROVER_w_ok( dest, n ), "write" );
-        __CPROVER_assert( __CPROVER_r_ok( src, n ), "read" );
-        return dest;
-    }
+/* *INDENT-OFF* */
+__CPROVER_requires( __CPROVER_is_fresh( dest, n ))
+__CPROVER_requires( __CPROVER_is_fresh( src, n ))
+/* *INDENT-ON* */
+    ;
 #endif /* if __has_builtin( __builtin___strncpy_chk ) */
+
+#endif // STRNCPY_CONTRACTS_H_

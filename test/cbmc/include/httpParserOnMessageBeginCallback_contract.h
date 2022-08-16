@@ -21,37 +21,40 @@
  */
 
 /**
- * @file strncpy.c
- * @brief Creates a stub for strncpy so that the proofs for HTTPClient_AddHeader,
- * HTTPClient_AddRangeHeader, and HTTPClient_InitializeRequestHeaders, run much
- * faster. This stub checks if, for the input copy length, the destination and
- * source are valid accessible memory.
+ * @file httpParserOnMessageBeginCallback_contract.h
+ * @brief Contract for the @ref httpParserOnMessageBeginCallback function.
  */
 
-#include <string.h>
+#ifndef HTTPPARSERONMESSAGEBEGINCALLBACK_CONTRACT_H_
+#define HTTPPARSERONMESSAGEBEGINCALLBACK_CONTRACT_H_
 
-/* This is a clang macro not available on linux */
-#ifndef __has_builtin
-    #define __has_builtin( x )    0
-#endif
+#include "http_cbmc_state_predicates.h"
+#include "llhttp.h"
+#include <stdbool.h>
 
-#if __has_builtin( __builtin___strncpy_chk )
-    char * __builtin___strncpy_chk( char * dest,
-                                    const char * src,
-                                    size_t n,
-                                    size_t os )
+/** @brief Requires clause for @ref httpParserOnMessageBeginCallback */
+bool httpParserOnMessageBeginCallbackRequires( llhttp_t * pHttpParser )
+{
+    return isValidHttpSendParser( pHttpParser );
+}
+
+/** @brief Assigns clause for @ref httpParserOnMessageBeginCallback */
+void httpParserOnMessageBeginCallbackAssigns( llhttp_t * pHttpParser )
+{
+    if( pHttpParser != NULL )
     {
-        __CPROVER_assert( __CPROVER_w_ok( dest, n ), "write" );
-        __CPROVER_assert( __CPROVER_r_ok( src, n ), "read" );
-        return dest;
+        HTTPParsingContext_t * context = ( HTTPParsingContext_t * ) pHttpParser->data;
+
+        if( context != NULL )
+        {
+            __CPROVER_typed_target( context->state );
+        }
     }
-#else
-    char * strncpy( char * dest,
-                    const char * src,
-                    size_t n )
-    {
-        __CPROVER_assert( __CPROVER_w_ok( dest, n ), "write" );
-        __CPROVER_assert( __CPROVER_r_ok( src, n ), "read" );
-        return dest;
-    }
-#endif /* if __has_builtin( __builtin___strncpy_chk ) */
+}
+
+int __CPROVER_file_local_core_http_client_c_httpParserOnMessageBeginCallback( llhttp_t * pHttpParser )
+__CPROVER_requires( httpParserOnMessageBeginCallbackRequires( pHttpParser ) )
+__CPROVER_assigns( httpParserOnMessageBeginCallbackAssigns( pHttpParser ) )
+;
+
+#endif // HTTPPARSERONMESSAGEBEGINCALLBACK_CONTRACT_H_

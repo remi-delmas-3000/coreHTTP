@@ -22,12 +22,13 @@
 
 #include "transport_interface_stubs.h"
 
+/* The number of tries to send the message before this invocation */
+int32_t transport_interface_stubs_tries = 0;
+
 int32_t TransportInterfaceSendStub( NetworkContext_t * pNetworkContext,
                                     void * pBuffer,
                                     size_t bytesToSend )
 {
-    /* The number of tries to send the message before this invocation */
-    static int32_t tries = 0;
     /* The number of bytes considered sent after this invocation */
     int32_t ret;
 
@@ -53,11 +54,11 @@ int32_t TransportInterfaceSendStub( NetworkContext_t * pNetworkContext,
         __CPROVER_assume( ret <= ( int32_t ) bytesToSend );
     }
 
-    tries++;
+    transport_interface_stubs_tries++;
 
-    if( tries >= MAX_TRIES )
+    if( transport_interface_stubs_tries >= MAX_TRIES )
     {
-        tries = 0;
+        transport_interface_stubs_tries = 0;
 
         /* In order to stop the looping on send we must return an error or
          * bytesToSend. We return an error instead of bytesToSend because

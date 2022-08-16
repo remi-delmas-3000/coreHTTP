@@ -21,23 +21,29 @@
  */
 
 /**
- * @file httpHeaderStrncpy.c
- * @brief Creates a stub for httpHeaderStrncpy so that the proofs for
+ * @file httpHeaderStrncpy_contract.h
+ * @brief A contract for @ref httpHeaderStrncpy so that the proofs for
  * HTTPClient_AddHeader, HTTPClient_AddRangeHeader, and
- * HTTPClient_InitializeRequestHeaders run much faster. This stub checks if, for
+ * HTTPClient_InitializeRequestHeaders run faster. This contract checks if, for
  * the input copy length, the destination and source are valid accessible
- * memory.
+ * memory, but does not model the actual copy itself.
  */
+
+#ifndef HTTPHEADERSTRNCPY_CONTRACT_H_
+#define HTTPHEADERSTRNCPY_CONTRACT_H_
 
 #include <string.h>
 #include <stdint.h>
 
-char * httpHeaderStrncpy( char * pDest,
-                          const char * pSrc,
-                          size_t len,
-                          uint8_t isField )
-{
-    __CPROVER_assert( __CPROVER_w_ok( pDest, len ), "write" );
-    __CPROVER_assert( __CPROVER_r_ok( pSrc, len ), "read" );
-    return pDest;
-}
+char * __CPROVER_file_local_core_http_client_c_httpHeaderStrncpy( char * pDest,
+                                                                  const char * pSrc,
+                                                                  size_t len,
+                                                                  uint8_t isField )
+/* *INDENT-OFF* */
+__CPROVER_requires(
+    __CPROVER_is_fresh(pDest, len) && __CPROVER_is_fresh(pSrc, len))
+__CPROVER_ensures(__CPROVER_return_value == __CPROVER_old(pDest))
+/* *INDENT-ON* */
+;
+
+#endif // HTTPHEADERSTRNCPY_CONTRACT_H_
